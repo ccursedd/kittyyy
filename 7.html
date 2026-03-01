@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,134 +5,187 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>7 ˢʷᵃᵍᶜᵃʳᵗᵉˡ</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Inter', sans-serif;
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Inter',sans-serif;
 }
 
-body {
-    height: 100vh;
-    overflow: hidden;
-    background: #000;
-    color: #fff;
+body{
+    height:100vh;
+    overflow:hidden;
+    background:#000;
+    color:#fff;
 }
 
 /* Background */
-body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    background: url('https://i.pinimg.com/originals/f7/9b/e1/f79be1757aa97b2319863e718a9402c4.gif') center/cover no-repeat;
-    opacity: 0.08;
-    filter: grayscale(100%);
-    z-index: -1;
+body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    background:url('https://raw.githubusercontent.com/ccursedd/log/refs/heads/main/From%20KlickPin%20CF%20Pin%20by%20Kiti%20on%20doll%20in%202026%20_%20Dolls.gif') center/cover no-repeat;
+    opacity:0.65;
+    filter:grayscale(100%) contrast(120%);
+    z-index:-2;
+}
+
+/* subtle overlay depth */
+body::after{
+    content:"";
+    position:fixed;
+    inset:0;
+    background:radial-gradient(circle at center, rgba(255,255,255,0.05), transparent 90%);
+    z-index:-1;
 }
 
 /* ENTER SCREEN */
-#enter-screen {
-    position: fixed;
-    width: 100%;
-    height: 100%;
-    background: #000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10;
-    cursor: pointer;
-    transition: opacity 0.8s ease;
+#enter-screen{
+    position:fixed;
+    width:100%;
+    height:100%;
+    background:#000;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:10;
+    cursor:pointer;
+    transition:opacity 0.8s ease;
 }
 
-#enter-screen span {
-    font-size: 11px;
-    letter-spacing: 8px;
-    text-transform: uppercase;
-    opacity: 0.5;
+#enter-screen span{
+    font-size:11px;
+    letter-spacing:8px;
+    text-transform:uppercase;
+    opacity:0.5;
+    transition:0.3s ease;
+}
+
+#enter-screen:hover span{
+    opacity:1;
+    letter-spacing:10px;
 }
 
 /* MAIN */
-.main {
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    perspective: 1200px;
+.main{
+    height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    perspective:1600px;
 }
 
 /* CARD */
-.card {
-    width: 420px;
-    padding: 55px;
-    border-radius: 18px;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.08);
-    backdrop-filter: blur(18px);
-    text-align: center;
-    transition: transform 0.12s ease, box-shadow 0.4s ease;
-    box-shadow: 0 0 40px rgba(255,255,255,0.04);
+.card{
+    width:420px;
+    padding:55px;
+    border-radius:24px;
+
+    /* fully transparent */
+    background:transparent;
+
+    border:1px solid rgba(255,255,255,0.15);
+
+    /* remove blur */
+    backdrop-filter:none;
+    -webkit-backdrop-filter:none;
+
+    text-align:center;
+    transition:transform 0.12s ease, box-shadow 0.4s ease;
+    box-shadow:0 0 60px rgba(255,255,255,0.05);
+    position:relative;
+    opacity:0;
+    transform:translateY(20px) scale(0.98);
 }
 
-/* PFP BLACK & WHITE */
-.pfp {
-    width: 110px;
-    height: 110px;
-    border-radius: 50%;
-    object-fit: cover;
-    filter: grayscale(100%) contrast(120%);
-    border: 2px solid rgba(255,255,255,0.25);
-    margin-bottom: 25px;
-    transition: 0.4s ease;
+/* animated border glow */
+.card::before{
+    content:"";
+    position:absolute;
+    inset:-1px;
+    border-radius:24px;
+    padding:1px;
+    background:linear-gradient(120deg, rgba(255,255,255,0.4), transparent, rgba(255,255,255,0.4));
+    -webkit-mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;
+    mask-composite:exclude;
+    opacity:0.2;
+    transition:opacity 0.4s ease;
 }
 
-.pfp:hover {
-    filter: grayscale(100%) contrast(140%);
-    transform: scale(1.04);
+.card:hover::before{
+    opacity:0.5;
+}
+
+.card.active{
+    opacity:1;
+    transform:translateY(0) scale(1);
+}
+
+/* PFP */
+.pfp{
+    width:110px;
+    height:110px;
+    border-radius:50%;
+    object-fit:cover;
+    filter:grayscale(100%) contrast(120%);
+    border:2px solid rgba(255,255,255,0.25);
+    margin-bottom:25px;
+    transition:0.4s ease;
+}
+
+.pfp:hover{
+    transform:scale(1.08);
+    filter:grayscale(100%) contrast(160%);
 }
 
 /* Username */
-.username {
-    font-size: 24px;
-    font-weight: 600;
-    letter-spacing: 6px;
-    margin-bottom: 10px;
+.username{
+    font-size:24px;
+    font-weight:700;
+    letter-spacing:6px;
+    margin-bottom:10px;
+    text-shadow:0 0 15px rgba(255,255,255,0.2);
 }
 
 /* Subtitle */
-.subtitle {
-    font-size: 12px;
-    opacity: 0.6;
-    margin-bottom: 38px;
-    letter-spacing: 4px;
+.subtitle{
+    font-size:12px;
+    opacity:0.6;
+    margin-bottom:38px;
+    letter-spacing:4px;
 }
 
 /* Social Icons */
-.socials {
-    display: flex;
-    justify-content: center;
-    gap: 28px;
+.socials{
+    display:flex;
+    justify-content:center;
+    gap:28px;
 }
 
-.socials a {
-    color: #fff;
-    font-size: 18px; /* smaller logos */
-    transition: 0.3s ease;
-    opacity: 0.6;
+.socials a{
+    color:#fff;
+    font-size:18px;
+    transition:0.3s ease;
+    opacity:0.6;
 }
 
-.socials a:hover {
-    opacity: 1;
-    transform: translateY(-4px);
+.socials a:hover{
+    opacity:1;
+    transform:translateY(-6px) scale(1.1);
+    text-shadow:0 0 15px rgba(255,255,255,0.6);
 }
 
 /* Fade out */
-.fade-out {
-    opacity: 0;
-    pointer-events: none;
+.fade-out{
+    opacity:0;
+    pointer-events:none;
 }
 </style>
 </head>
@@ -150,46 +202,45 @@ body::before {
         <div class="subtitle">MAKES 8 FIGS</div>
 
         <div class="socials">
-            <a href="https://discord.gg/xajPSeswW8" target="_blank">
-                <i class="fa-brands fa-discord"></i>
-            </a>
-            <a href="https://www.instagram.com/x_n7v/" target="_blank">
-                <i class="fa-brands fa-instagram"></i>
-            </a>
-            <a href="https://www.tiktok.com/@gutcanvas" target="_blank">
-                <i class="fa-brands fa-tiktok"></i>
-            </a>
+            <a href="https://discord.gg/xajPSeswW8" target="_blank"><i class="fa-brands fa-discord"></i></a>
+            <a href="https://www.instagram.com/x_n7v/" target="_blank"><i class="fa-brands fa-instagram"></i></a>
+            <a href="https://www.tiktok.com/@gutcanvas" target="_blank"><i class="fa-brands fa-tiktok"></i></a>
         </div>
     </div>
 </div>
 
 <audio id="bg-music" loop>
-    <source src="https://github.com/ccursedd/log/raw/refs/heads/main/a05ad074-4f02-46a6-8cb6-c5510b315bce.mp3" type="audio/mpeg">
+<source src="https://github.com/ccursedd/log/raw/refs/heads/main/467bbe60-1723-4029-8a87-3da260d7abc9.mp3" type="audio/mpeg">
 </audio>
 
 <script>
-const enterScreen = document.getElementById("enter-screen");
-const music = document.getElementById("bg-music");
-const card = document.getElementById("card");
+const enterScreen=document.getElementById("enter-screen");
+const music=document.getElementById("bg-music");
+const card=document.getElementById("card");
 
-enterScreen.addEventListener("click", () => {
+enterScreen.addEventListener("click",()=>{
     enterScreen.classList.add("fade-out");
-    music.volume = 0;
+
+    setTimeout(()=>{
+        card.classList.add("active");
+    },300);
+
+    music.volume=0;
     music.play();
 
-    let fade = setInterval(() => {
-        if (music.volume < 0.9) {
-            music.volume += 0.05;
-        } else {
+    let fade=setInterval(()=>{
+        if(music.volume<0.9){
+            music.volume+=0.02;
+        }else{
             clearInterval(fade);
         }
-    }, 200);
+    },120);
 });
 
-document.addEventListener("mousemove", (e) => {
-    const x = (window.innerWidth / 2 - e.clientX) / 40;
-    const y = (window.innerHeight / 2 - e.clientY) / 40;
-    card.style.transform = `rotateY(${x}deg) rotateX(${y}deg)`;
+document.addEventListener("mousemove",(e)=>{
+    const x=(window.innerWidth/2-e.clientX)/35;
+    const y=(window.innerHeight/2-e.clientY)/35;
+    card.style.transform=`rotateY(${x}deg) rotateX(${y}deg)`;
 });
 </script>
 
