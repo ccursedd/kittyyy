@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>7 ˢʷᵃᵍᶜᵃʳᵗᵉˡ</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    height: 100vh;
+    overflow: hidden;
+    background: #000;
+    color: #fff;
+}
+
+/* Background */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: url('https://i.pinimg.com/originals/cc/c7/e7/ccc7e723df66ec0fc78009d886e9d469.gif') center/cover no-repeat;
+    opacity: 0.08;
+    filter: grayscale(100%);
+    z-index: -1;
+}
+
+/* ENTER SCREEN */
+#enter-screen {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    cursor: pointer;
+    transition: opacity 0.8s ease;
+}
+
+#enter-screen span {
+    font-size: 11px;
+    letter-spacing: 8px;
+    text-transform: uppercase;
+    opacity: 0.5;
+}
+
+/* MAIN */
+.main {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    perspective: 1200px;
+}
+
+/* CARD */
+.card {
+    width: 420px;
+    padding: 55px;
+    border-radius: 18px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    backdrop-filter: blur(18px);
+    text-align: center;
+    transition: transform 0.12s ease, box-shadow 0.4s ease;
+    box-shadow: 0 0 40px rgba(255,255,255,0.04);
+}
+
+/* PFP BLACK & WHITE */
+.pfp {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    object-fit: cover;
+    filter: grayscale(100%) contrast(120%);
+    border: 2px solid rgba(255,255,255,0.25);
+    margin-bottom: 25px;
+    transition: 0.4s ease;
+}
+
+.pfp:hover {
+    filter: grayscale(100%) contrast(140%);
+    transform: scale(1.04);
+}
+
+/* Username */
+.username {
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: 6px;
+    margin-bottom: 10px;
+}
+
+/* Subtitle */
+.subtitle {
+    font-size: 12px;
+    opacity: 0.6;
+    margin-bottom: 38px;
+    letter-spacing: 4px;
+}
+
+/* Social Icons */
+.socials {
+    display: flex;
+    justify-content: center;
+    gap: 28px;
+}
+
+.socials a {
+    color: #fff;
+    font-size: 18px; /* smaller logos */
+    transition: 0.3s ease;
+    opacity: 0.6;
+}
+
+.socials a:hover {
+    opacity: 1;
+    transform: translateY(-4px);
+}
+
+/* Fade out */
+.fade-out {
+    opacity: 0;
+    pointer-events: none;
+}
+</style>
+</head>
+<body>
+
+<div id="enter-screen">
+    <span>[ click anywhere ]</span>
+</div>
+
+<div class="main">
+    <div class="card" id="card">
+        <img src="https://i.pinimg.com/736x/99/be/20/99be209aa630eb8a5738b4a133ba23a6.jpg" class="pfp">
+        <div class="username">7</div>
+        <div class="subtitle">MAKES 8 FIGS</div>
+
+        <div class="socials">
+            <a href="https://discord.gg/xajPSeswW8" target="_blank">
+                <i class="fa-brands fa-discord"></i>
+            </a>
+            <a href="https://www.instagram.com/outbleedd/" target="_blank">
+                <i class="fa-brands fa-instagram"></i>
+            </a>
+            <a href="https://www.tiktok.com/@gutcanvas" target="_blank">
+                <i class="fa-brands fa-tiktok"></i>
+            </a>
+        </div>
+    </div>
+</div>
+
+<audio id="bg-music" loop>
+    <source src="https://github.com/ccursedd/log/raw/refs/heads/main/SINISTER_OFFENSIVE_DOUBLEFOUR_MUD_PROD_MVRDER4SVTVN_SoundLoadMate.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+const enterScreen = document.getElementById("enter-screen");
+const music = document.getElementById("bg-music");
+const card = document.getElementById("card");
+
+enterScreen.addEventListener("click", () => {
+    enterScreen.classList.add("fade-out");
+    music.volume = 0;
+    music.play();
+
+    let fade = setInterval(() => {
+        if (music.volume < 0.9) {
+            music.volume += 0.05;
+        } else {
+            clearInterval(fade);
+        }
+    }, 200);
+});
+
+document.addEventListener("mousemove", (e) => {
+    const x = (window.innerWidth / 2 - e.clientX) / 40;
+    const y = (window.innerHeight / 2 - e.clientY) / 40;
+    card.style.transform = `rotateY(${x}deg) rotateX(${y}deg)`;
+});
+</script>
+
+</body>
+</html>
