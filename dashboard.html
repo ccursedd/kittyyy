@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - KittyBin.lat</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <div class="auth-box">
+      <h2>Welcome to your Dashboard</h2>
+      <div>
+        <p>Your email: <span id="username-display"></span></p>
+        <p>Your unique key: <span id="user-key"></span></p>
+        <p>Profile Picture: <img id="profile-image" src="" alt="Profile Picture" /></p>
+        <p>Banner: <img id="banner-image" src="" alt="Banner Image" /></p>
+      </div>
+      <button onclick="logout()">Logout</button>
+      <input type="file" id="profile-pic" accept="image/*" />
+      <button onclick="uploadProfilePic()">Upload Profile Picture</button>
+      <input type="file" id="banner-pic" accept="image/*" />
+      <button onclick="uploadBanner()">Upload Banner</button>
+    </div>
+  </div>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>
