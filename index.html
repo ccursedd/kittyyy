@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>kittybin.lat · monochrome</title>
+    <title>kittybin.lat</title>
     <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <!-- Supabase JS -->
@@ -62,6 +62,7 @@
         @keyframes scaleIn { to { opacity: 1; transform: scale(1); } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideDown { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-5px)} 40%{transform:translateX(5px)} 60%{transform:translateX(-3px)} 80%{transform:translateX(3px)} }
 
         /* header with feline vibe */
         .app-header {
@@ -133,7 +134,7 @@
         /* profile dropdown (noir) */
         .dropdown-panel {
             position: absolute; top: 90px; right: 30px; width: 340px;
-            background: rgba(10, 10, 10, 0.9);
+            background: rgba(10, 10, 10, 0.95);
             backdrop-filter: blur(20px);
             border-radius: 40px;
             padding: 24px;
@@ -189,6 +190,25 @@
             font-weight: 600; cursor: pointer; transition: 0.15s;
         }
         .avatar-upload button:hover { background: #555; }
+
+        /* delete account button */
+        .delete-btn {
+            background: #2a1a1a;
+            border: 1px solid #662222;
+            color: #ffaaaa;
+            width: 100%;
+            padding: 12px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.15s;
+            margin-top: 10px;
+        }
+        .delete-btn:hover {
+            background: #3a1a1a;
+            border-color: #aa3333;
+            color: #ffcccc;
+        }
 
         /* main layout */
         .explore-layout {
@@ -290,6 +310,25 @@
             margin-bottom: 20px;
             color: #f0f0f0;
             letter-spacing: -0.5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logout-btn {
+            background: #1a1a1a;
+            border: 1px solid #444;
+            color: #ccc;
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .logout-btn:hover {
+            background: #252525;
+            border-color: #777;
+            color: white;
         }
 
         .profiles-grid {
@@ -483,7 +522,7 @@
                 <div class="input-group"><input type="password" id="signupPassword" placeholder="password (min 6)"></div>
                 <div class="input-group"><input type="password" id="signupConfirm" placeholder="confirm password"></div>
                 <div class="input-group"><input type="text" id="signupName" placeholder="display name"></div>
-                <div class="input-group"><input type="text" id="signupUsername" placeholder="@username (optional)"></div>
+                <div class="input-group"><input type="text" id="signupUsername" placeholder="@username (must be unique)" required></div>
                 <div class="input-group"><textarea id="signupBio" placeholder="tell about yourself..." rows="2"></textarea></div>
                 <button class="btn-primary w-100" onclick="handleSignup()">create profile</button>
                 <div class="micro-tip">have an account? <button onclick="switchAuthTab('login')">log in</button></div>
@@ -510,10 +549,14 @@
         <div class="dropdown-panel" id="profileDropdown">
             <div class="avatar-large" id="modalAvatar">U</div>
             <div class="profile-field"><label>DISPLAY NAME</label><input type="text" id="profileDisplayName" placeholder="Your name"></div>
-            <div class="profile-field"><label>USERNAME</label><input type="text" id="profileUsername" placeholder="@username"></div>
+            <div class="profile-field"><label>USERNAME (unique)</label><input type="text" id="profileUsername" placeholder="@username"></div>
             <div class="profile-field"><label>BIO</label><textarea id="profileBio" placeholder="Tell about yourself" rows="2"></textarea></div>
             <div class="profile-field"><label>AVATAR URL</label><div class="avatar-upload"><input type="url" id="profileAvatarUrl" placeholder="https://..."><button onclick="updateProfile()">save</button></div></div>
-            <div style="display:flex; gap:8px;"><button class="btn-secondary" style="flex:1;" onclick="toggleProfileDropdown()">close</button><button class="btn-primary" style="flex:1;" onclick="updateProfile()">update</button></div>
+            <button class="delete-btn" onclick="confirmDeleteAccount()"><i class="fas fa-trash-alt"></i> delete account</button>
+            <div style="display:flex; gap:8px; margin-top:10px;">
+                <button class="btn-secondary" style="flex:1;" onclick="toggleProfileDropdown()">close</button>
+                <button class="btn-primary" style="flex:1;" onclick="updateProfile()">update</button>
+            </div>
         </div>
 
         <!-- main explorer layout -->
@@ -557,28 +600,28 @@
                 "sb_publishable_ILF6pER_bdL8GppxOzfumg_xsDoMA6T"
             );
 
-            // ---------- SQL to run once (IF NOT EXISTS) ----------
+            // ---------- SQL to run once (with unique username constraint) ----------
             /*
             CREATE TABLE IF NOT EXISTS profiles (
                 id UUID REFERENCES auth.users PRIMARY KEY,
                 email TEXT,
                 display_name TEXT,
-                username TEXT UNIQUE,
+                username TEXT UNIQUE,  -- this ensures no two users have same username
                 bio TEXT,
                 avatar_url TEXT,
                 created_at TIMESTAMP DEFAULT NOW()
             );
             CREATE TABLE IF NOT EXISTS follows (
                 id SERIAL PRIMARY KEY,
-                follower_id UUID REFERENCES profiles(id),
-                following_id UUID REFERENCES profiles(id),
+                follower_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+                following_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
                 created_at TIMESTAMP DEFAULT NOW(),
                 UNIQUE(follower_id, following_id)
             );
             CREATE TABLE IF NOT EXISTS profile_likes (
                 id SERIAL PRIMARY KEY,
-                user_id UUID REFERENCES profiles(id),
-                liked_user_id UUID REFERENCES profiles(id),
+                user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+                liked_user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
                 created_at TIMESTAMP DEFAULT NOW(),
                 UNIQUE(user_id, liked_user_id)
             );
@@ -684,9 +727,16 @@
                             bio: user.user_metadata?.bio || '',
                             avatar_url: user.user_metadata?.avatar_url || ''
                         });
-                    if (error) console.warn('profile insert', error);
+                    if (error) {
+                        console.warn('profile insert', error);
+                        if (error.message.includes('duplicate key') || error.message.includes('unique')) {
+                            alert('Username already taken. Please choose a different one.');
+                        }
+                        return false;
+                    }
                 }
                 await loadProfileFromDB(user.id);
+                return true;
             }
 
             async function loadProfileFromDB(userId) {
@@ -781,9 +831,60 @@
                 else if (currentView === 'following') renderFollowing();
             };
 
+            // ---------- Account Deletion ----------
+            window.confirmDeleteAccount = function() {
+                if (confirm('😿 Are you absolutely sure? This will permanently delete your profile, all follows, likes, and cannot be undone.')) {
+                    deleteAccount();
+                }
+            };
+
+            async function deleteAccount() {
+                if (!currentUser) return;
+                
+                // 1. Delete from profiles (cascades to follows/likes due to ON DELETE CASCADE)
+                const { error: profileError } = await supabase
+                    .from('profiles')
+                    .delete()
+                    .eq('id', currentUser.id);
+                
+                if (profileError) {
+                    alert('Error deleting profile: ' + profileError.message);
+                    return;
+                }
+
+                // 2. Sign out from Supabase auth (this deletes the user from auth.users)
+                const { error: signOutError } = await supabase.auth.admin.deleteUser(currentUser.id);
+                
+                if (signOutError) {
+                    // If admin delete fails, try regular sign out and tell user to contact support
+                    await supabase.auth.signOut();
+                    alert('Account data deleted. Please contact support to fully remove authentication.');
+                } else {
+                    await supabase.auth.signOut();
+                }
+
+                // Reset UI
+                currentUser = null;
+                appEl.style.display = 'none';
+                authWrapper.style.display = 'block';
+                profileDropdown.classList.remove('show');
+                switchAuthTab('login');
+                alert('Account deleted successfully. Goodbye.');
+            }
+
+            // ---------- Logout ----------
+            window.handleLogout = async function() {
+                await supabase.auth.signOut();
+                currentUser = null;
+                appEl.style.display = 'none';
+                authWrapper.style.display = 'block';
+                profileDropdown.classList.remove('show');
+                switchAuthTab('login');
+            };
+
             // ---------- Render ----------
             function renderExplore() {
-                let html = '<div class="section-title"><i class="fas fa-compass"></i> explore kittens</div>';
+                let html = '<div class="section-title"><i class="fas fa-compass"></i> explore kittens <button class="logout-btn" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> logout</button></div>';
                 html += '<div class="profiles-grid">';
                 allUsers.forEach(p => {
                     if (p.id === currentUser.id) return;
@@ -821,7 +922,7 @@
                 const followingIds = following?.map(f => f.following_id) || [];
                 const followedUsers = allUsers.filter(p => followingIds.includes(p.id) && p.id !== currentUser.id);
 
-                let html = '<div class="section-title"><i class="fas fa-heart"></i> your colony</div>';
+                let html = '<div class="section-title"><i class="fas fa-heart"></i> your colony <button class="logout-btn" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> logout</button></div>';
                 if (followedUsers.length === 0) {
                     html += '<div class="empty-state"><i class="fas fa-cat"></i><p>not following anyone yet</p><button class="btn-primary" onclick="switchView(\'explore\')">explore</button></div>';
                     mainContent.innerHTML = html; return;
@@ -904,14 +1005,22 @@
                 const disp = document.getElementById('signupName').value.trim() || email.split('@')[0];
                 const username = document.getElementById('signupUsername').value.trim();
                 const bio = document.getElementById('signupBio').value.trim();
+                
                 if (!email || !pass) return alert('fill required');
                 if (pass !== confirm) return alert('pass mismatch');
+                if (!username) return alert('username is required');
+                
                 const { data, error } = await supabase.auth.signUp({
                     email, password: pass,
                     options: { data: { display_name: disp, username, bio, avatar_url: '' } }
                 });
-                if (error) alert(error.message);
-                else { alert('profile created! check email, then log in.'); switchAuthTab('login'); }
+                
+                if (error) {
+                    alert(error.message);
+                } else {
+                    alert('profile created! check email verification (if enabled), then log in.');
+                    switchAuthTab('login');
+                }
             };
 
             window.handleLogin = async function() {
@@ -921,21 +1030,19 @@
                 if (error) alert(error.message);
                 else {
                     currentUser = data.user;
-                    await ensureProfileInDB(currentUser);
-                    await loadAllUsers();
-                    authWrapper.style.display = 'none';
-                    appEl.style.display = 'flex';
-                    appEl.style.flexDirection = 'column';
+                    const success = await ensureProfileInDB(currentUser);
+                    if (success) {
+                        await loadAllUsers();
+                        authWrapper.style.display = 'none';
+                        appEl.style.display = 'flex';
+                        appEl.style.flexDirection = 'column';
+                    } else {
+                        // If profile insert failed (username duplicate), sign out and notify
+                        await supabase.auth.signOut();
+                        currentUser = null;
+                        alert('Username conflict. Please sign up with a different username.');
+                    }
                 }
-            };
-
-            window.handleLogout = async function() {
-                await supabase.auth.signOut();
-                currentUser = null;
-                appEl.style.display = 'none';
-                authWrapper.style.display = 'block';
-                profileDropdown.classList.remove('show');
-                switchAuthTab('login');
             };
 
             window.updateProfile = async function() {
@@ -945,10 +1052,17 @@
                 const newBio = profileBio.value.trim();
                 const newAvatar = profileAvatarUrl.value.trim();
 
+                if (!newUsername) {
+                    alert('Username cannot be empty');
+                    return;
+                }
+
+                // Update auth metadata
                 await supabase.auth.updateUser({
                     data: { display_name: newDisplay, username: newUsername, bio: newBio, avatar_url: newAvatar }
                 });
 
+                // Update profiles table
                 const { error } = await supabase
                     .from('profiles')
                     .update({
@@ -959,8 +1073,13 @@
                     })
                     .eq('id', currentUser.id);
 
-                if (error) alert(error.message);
-                else {
+                if (error) {
+                    if (error.message.includes('duplicate key') || error.message.includes('unique')) {
+                        alert('Username already taken. Please choose a different one.');
+                    } else {
+                        alert(error.message);
+                    }
+                } else {
                     profile.display_name = newDisplay;
                     profile.username = newUsername;
                     profile.bio = newBio;
