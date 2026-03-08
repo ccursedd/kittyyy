@@ -710,31 +710,32 @@
             }
 
             async function ensureProfileInDB(user) {
-                const { data: existing } = await supabase
-                    .from('profiles')
-                    .select('*')
-                    .eq('id', user.id)
-                    .maybeSingle();
+                // Build a safe username: fall back to email prefix, strip non-alphanum/underscore
+                const rawUsername = user.user_metadata?.username || user.email.split('@')[0];
+                const safeUsername = rawUsername.replace(/[^a-zA-Z0-9_]/g, '_').slice(0, 30) || 'user_' + user.id.slice(0, 8);
 
-                if (!existing) {
-                    const { error } = await supabase
-                        .from('profiles')
-                        .insert({
-                            id: user.id,
-                            email: user.email,
-                            display_name: user.user_metadata?.display_name || user.email.split('@')[0],
-                            username: user.user_metadata?.username || '',
-                            bio: user.user_metadata?.bio || '',
-                            avatar_url: user.user_metadata?.avatar_url || ''
-                        });
-                    if (error) {
-                        console.warn('profile insert', error);
-                        if (error.message.includes('duplicate key') || error.message.includes('unique')) {
-                            alert('Username already taken. Please choose a different one.');
-                        }
-                        return false;
+                // Use upsert so re-logins and session restores never fail on "already exists"
+                const { error } = await supabase
+                    .from('profiles')
+                    .upsert({
+                        id: user.id,
+                        email: user.email,
+                        display_name: user.user_metadata?.display_name || user.email.split('@')[0],
+                        username: safeUsername,
+                        bio: user.user_metadata?.bio || '',
+                        avatar_url: user.user_metadata?.avatar_url || ''
+                    }, { onConflict: 'id', ignoreDuplicates: false });
+
+                if (error) {
+                    console.error('profile upsert error:', error);
+                    if (error.message.includes('duplicate key') || error.message.includes('unique')) {
+                        alert('Username already taken. Please choose a different one.');
+                    } else {
+                        alert('Database error saving profile: ' + error.message);
                     }
+                    return false;
                 }
+
                 await loadProfileFromDB(user.id);
                 return true;
             }
@@ -1118,11 +1119,16 @@
                 const { data: { session } } = await supabase.auth.getSession();
                 if (session) {
                     currentUser = session.user;
-                    await ensureProfileInDB(currentUser);
-                    await loadAllUsers();
-                    authWrapper.style.display = 'none';
-                    appEl.style.display = 'flex';
-                    appEl.style.flexDirection = 'column';
+                    const success = await ensureProfileInDB(currentUser);
+                    if (success) {
+                        await loadAllUsers();
+                        authWrapper.style.display = 'none';
+                        appEl.style.display = 'flex';
+                        appEl.style.flexDirection = 'column';
+                    } else {
+                        await supabase.auth.signOut();
+                        currentUser = null;
+                    }
                 }
             }
             restoreSession();
